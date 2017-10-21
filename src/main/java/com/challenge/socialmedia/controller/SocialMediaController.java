@@ -27,10 +27,10 @@ import kotlin.ranges.IntRange;
 @RestController
 public class SocialMediaController {
 
-    private final SocialMediaService service;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     private final static String ERROR = "ERROR: No rule for this actor";
+    
+    private final SocialMediaService service;
 
     @Autowired
     public SocialMediaController(SocialMediaService service) {
