@@ -51,7 +51,7 @@ public class SocialMediaController {
         return ERROR;
     }
 
-    @GetMapping("/data")
+    @GetMapping("/challenge")
     public @ResponseBody
     CompletableFuture handleRequest(@RequestParam(required = false) String username,
                                     @RequestParam(required = false) String content,
