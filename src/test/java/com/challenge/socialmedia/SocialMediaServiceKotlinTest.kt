@@ -2,6 +2,7 @@ package com.challenge.socialmedia
 
 import com.challenge.socialmedia.dataobjects.SocialData
 import com.challenge.socialmedia.dataobjects.SocialDataResponse
+import com.challenge.socialmedia.dataobjects.SocialDataResult
 import com.challenge.socialmedia.dataobjects.SocialType
 import com.challenge.socialmedia.service.SocialMediaService
 import com.nhaarman.mockito_kotlin.mock
@@ -10,6 +11,7 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Matchers
 import org.mockito.MockitoAnnotations
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.RestTemplate
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -21,6 +23,7 @@ import kotlin.test.assertEquals
  * @author Hugo Novajarque
  */
 
+@Suppress("UNCHECKED_CAST")
 class SocialMediaServiceKotlinTest {
 
     private val FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -49,49 +52,49 @@ class SocialMediaServiceKotlinTest {
     @Test
     fun `Test for actor with actorId 0`() {
 
-        val result = service.challenge(0).get()
-        assertEquals(result.size, 2)
+        val result = service.challenge(0).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 2)
     }
 
     @Test
     fun `Test for actor with actorId 1`() {
 
-        val result = service.challenge(1).get()
-        assertEquals(result.size, 1)
+        val result = service.challenge(1).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 1)
     }
 
     @Test
     fun `Test for actor with actorId 2`() {
 
-        val result = service.challenge(2).get()
-        assertEquals(result.size, 3)
+        val result = service.challenge(2).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 3)
     }
 
     @Test
     fun `Test for actor with actorId 3`() {
 
-        val result = service.challenge(3).get()
-        assertEquals(result.size, 1)
+        val result = service.challenge(3).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 1)
     }
 
     @Test
     fun `Test for actor with actorId 4`() {
 
-        val result = service.challenge(4).get()
-        assertEquals(result.size, 1)
+        val result = service.challenge(4).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 1)
     }
 
     @Test
     fun `Test for actor with actorId 5`() {
 
-        val result = service.challenge(5).get()
-        assertEquals(result.size, 3)
+        val result = service.challenge(5).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results, 3)
     }
 
     @Test
     fun `Test for actor with actorId 6`() {
 
-        val result = service.challenge(6).get()
-        assertEquals(result.size, 1)
+        val result = service.challenge(6).get() as ResponseEntity<SocialDataResult>
+        assertEquals(result.body.results , 1)
     }
 }

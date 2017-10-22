@@ -14,6 +14,11 @@ data class SocialDataResponse(
         val socials: List<SocialData>
 )
 
+data class SocialDataResult(
+        val results: Int,
+        val socials: List<SocialData>
+)
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class SocialData(
         val socialType: SocialType,

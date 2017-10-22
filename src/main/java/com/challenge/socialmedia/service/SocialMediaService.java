@@ -12,12 +12,14 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.challenge.socialmedia.dataobjects.SocialData;
 import com.challenge.socialmedia.dataobjects.SocialDataResponse;
+import com.challenge.socialmedia.dataobjects.SocialDataResult;
 import com.challenge.socialmedia.dataobjects.SocialType;
 
 /**
@@ -47,12 +49,14 @@ public class SocialMediaService {
     /**
      * Returns a CompletableFuture that will contain the result for the specific actor
      * @param actorId
-     * @return
+     * @return {@link SocialDataResult}
      */
-    public CompletableFuture<List<SocialData>> challenge(Integer actorId) {
+    public CompletableFuture challenge(Integer actorId) {
 
         return CompletableFuture.supplyAsync(this::makeRESTCall)
-                                .thenApply(socialDataList -> filterResultsByActorId(socialDataList, actorId));
+                                .thenApply(socialDataList -> filterResultsByActorId(socialDataList, actorId))
+                                .thenApply(this::createResult)
+                                .exceptionally(this::returnError);
     }
 
     /**
@@ -63,7 +67,7 @@ public class SocialMediaService {
      * @param socialType
      * @param before
      * @param after
-     * @return
+     * @return {@link SocialDataResult}
      */
     public CompletableFuture getSocials(String username,
                                         String content,
@@ -79,16 +83,16 @@ public class SocialMediaService {
                                                                            socialType,
                                                                            before,
                                                                            after,
-                                                                           socialDataList));
+                                                                           socialDataList))
+                                .thenApply(this::createResult)
+                                .exceptionally(this::returnError);
     }
 
     /**
      * Makes a REST call to the SOCIAL_URL to fetch all the data
-     * @return
      */
     @NotNull
     private List<SocialData> makeRESTCall() {
-//        RestTemplate restTemplate = new RestTemplate();
         return restTemplate.getForObject(SOCIAL_URL, SocialDataResponse.class).getSocials();
     }
 
@@ -97,16 +101,45 @@ public class SocialMediaService {
      * Auxiliary methods
      *********************/
 
+    /**
+     * Creates a ResponseEntity with Status 500
+     * @param throwable
+     * @return
+     */
+    private ResponseEntity<SocialDataResult> returnError(Throwable throwable) {
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Creates a ResponseEntity with the result and status 200
+     * @param socialDataList
+     * @return
+     */
+    private ResponseEntity<SocialDataResult> createResult(List<SocialData> socialDataList) {
+        return new ResponseEntity<>(new SocialDataResult(socialDataList.size(), socialDataList), HttpStatus.OK);
+    }
+
+    /**
+     * Filters the data by actorId
+     * @param socialDataList
+     * @param actorId
+     * @return
+     */
     private List<SocialData> filterResultsByActorId(List<SocialData> socialDataList,
                                                     Integer actorId) {
 
         Predicate<SocialData> filter = getFilterForActor(actorId);
 
         return filter != null ? socialDataList.stream()
-                                               .filter(filter)
-                                               .collect(Collectors.toList()) : socialDataList;
+                                              .filter(filter)
+                                              .collect(Collectors.toList()) : socialDataList;
     }
 
+    /**
+     * Gets the correct filter for the different actors
+     * @param actorId
+     * @return
+     */
     @Nullable
     private Predicate<SocialData> getFilterForActor(Integer actorId) {
         Predicate<SocialData> filter = null;
@@ -136,6 +169,17 @@ public class SocialMediaService {
         return filter;
     }
 
+    /**
+     * Filters the result regarding the optional parameters
+     * @param username
+     * @param content
+     * @param withoutContent
+     * @param socialType
+     * @param before
+     * @param after
+     * @param resultList
+     * @return
+     */
     private List<SocialData> filterResults(String username,
                                            String content,
                                            String withoutContent,
@@ -150,6 +194,16 @@ public class SocialMediaService {
                                                .collect(Collectors.toList()) : resultList;
     }
 
+    /**
+     * Gets the correct filter to use
+     * @param username
+     * @param content
+     * @param withoutContent
+     * @param socialType
+     * @param before
+     * @param after
+     * @return
+     */
     @Nullable
     private Predicate<SocialData> getFilterForRequest(String username,
                                                       String content,

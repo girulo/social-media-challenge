@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Before;
@@ -18,10 +19,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.challenge.socialmedia.dataobjects.SocialData;
 import com.challenge.socialmedia.dataobjects.SocialDataResponse;
+import com.challenge.socialmedia.dataobjects.SocialDataResult;
 import com.challenge.socialmedia.dataobjects.SocialType;
 import com.challenge.socialmedia.service.SocialMediaService;
 
@@ -89,8 +92,11 @@ public class ServiceMediaServiceJavaTest {
     @Test
     public void testForActorIdZero() throws ExecutionException, InterruptedException {
 
-        List<SocialData> result = service.challenge(0).get();
-        assertEquals(result.size(), 2);
+        CompletableFuture challenge = service.challenge(0);
+        ResponseEntity responseEntity = (ResponseEntity) challenge.get();;
+        SocialDataResult body = (SocialDataResult) responseEntity.getBody();
+
+        assertEquals(body.getResults(), 2);
 
     }
 
