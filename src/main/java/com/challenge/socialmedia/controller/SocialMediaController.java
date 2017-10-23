@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.challenge.socialmedia.dataobjects.SocialDataResult;
 import com.challenge.socialmedia.dataobjects.SocialType;
 import com.challenge.socialmedia.service.SocialMediaService;
 
@@ -49,7 +48,7 @@ public class SocialMediaController {
 
     @GetMapping("/challenge")
     public @ResponseBody
-    CompletableFuture<ResponseEntity<SocialDataResult>> handleRequest(@RequestParam(required = false) String username,
+    CompletableFuture handleRequest(@RequestParam(required = false) String username,
                                                                       @RequestParam(required = false) String content,
                                                                       @RequestParam(required = false) String withoutContent,
                                                                       @RequestParam(required = false) SocialType socialType,
@@ -62,8 +61,8 @@ public class SocialMediaController {
         return service.getSocials(username, content, withoutContent, socialType, beforeDate, afterDate);
     }
 
-    private ResponseEntity throwError() {
-        return new ResponseEntity(ERROR, HttpStatus.BAD_REQUEST);
+    private ResponseEntity<String> throwError() {
+        return new ResponseEntity<>(ERROR, HttpStatus.BAD_REQUEST);
     }
 
     private LocalDateTime toLocalDateTime(String date) {
